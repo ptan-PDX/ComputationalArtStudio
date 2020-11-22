@@ -1,4 +1,4 @@
-# web-app for API image manipulation
+# web-app for API image manipulation testing for changes
 
 from flask import Flask, request, render_template, send_from_directory
 import os
@@ -13,30 +13,34 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 # default access page
 @app.route("/")
 def main():
-    kwargs={
-        'title':'Home',
+    kwargs = {
+        'title': 'Home',
     }
-    return render_template('home.html',**kwargs)
-    
+    return render_template('home.html', **kwargs)
+
 
 @app.route("/about")
 def about():
-    kwargs={
-        'title':'About',
+    kwargs = {
+        'title': 'About',
     }
-    return render_template('about.html',**kwargs)
+    return render_template('about.html', **kwargs)
+
 
 @app.route("/colorharm")
 def colorharm():
     return render_template('colorharm.html')
+
+
 @app.route("/styletransfer")
 def styletransfer():
     return render_template('styletransfer.html')
 
+
 @app.route("/gallery")
 def gallery():
     response = requests.get('https://restcountries.eu/rest/v2/all')
-    return render_template('gallery.html',recipes= response.json())
+    return render_template('gallery.html', recipes=response.json())
 
 
 # upload selected image and forward to processing page
@@ -162,7 +166,7 @@ def crop():
     # crop image and show
     if crop_possible:
         img = img.crop((x1, y1, x2, y2))
-        
+
         # save and return image
         destination = "/".join([target, 'temp.png'])
         if os.path.isfile(destination):
@@ -204,7 +208,7 @@ def blend():
     # blend and show image
     img = Image.blend(img1, img2, float(alpha)/100)
 
-     # save and return image
+    # save and return image
     destination = "/".join([target, 'temp.png'])
     if os.path.isfile(destination):
         os.remove(destination)
@@ -221,4 +225,3 @@ def send_image(filename):
 
 if __name__ == "__main__":
     app.run()
-
