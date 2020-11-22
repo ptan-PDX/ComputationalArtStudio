@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+{% extends "base.html" %}
+{% set active_page = "colorharm" %}
+{% block title %} Computational Art Studio|Color Harmolization {% endblock %}
+
+{% block content %}
+ 
+    <div class="container">
+
+
+        <div class="jumbotron">
+            <h1>Color Harmolization: Upload your image</h1>
+            <p class="lead"></p>
+	       <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+            <input id="file-picker" type="file" name="file" accept="image/*" class="hidden" onchange="this.form.submit()">
+            <label for="file-picker" class="btn btn-lg btn-success">Select file</label>
+		 </form>
+        </div>
+
+
+ 
+    </div>
+
+
+    {% endblock %}

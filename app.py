@@ -3,6 +3,7 @@
 from flask import Flask, request, render_template, send_from_directory
 import os
 from PIL import Image
+import requests
 
 app = Flask(__name__)
 
@@ -12,7 +13,30 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 # default access page
 @app.route("/")
 def main():
-    return render_template('index.html')
+    kwargs={
+        'title':'Home',
+    }
+    return render_template('home.html',**kwargs)
+    
+
+@app.route("/about")
+def about():
+    kwargs={
+        'title':'About',
+    }
+    return render_template('about.html',**kwargs)
+
+@app.route("/colorharm")
+def colorharm():
+    return render_template('colorharm.html')
+@app.route("/styletransfer")
+def styletransfer():
+    return render_template('styletransfer.html')
+
+@app.route("/gallery")
+def gallery():
+    response = requests.get('https://restcountries.eu/rest/v2/all')
+    return render_template('gallery.html',recipes= response.json())
 
 
 # upload selected image and forward to processing page
