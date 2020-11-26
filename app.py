@@ -1,14 +1,36 @@
 # web-app for API image manipulation testing for changes
 
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_from_directory, redirect
 import os
 from PIL import Image
+import pyrebase
 import requests
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
+
+config = {
+    "apiKey": "AIzaSyC4pPPvGTTMpXnFogm6f71JOxNg3wSL2wk",
+    "authDomain": "style-playground.firebaseapp.com",
+    "databaseURL": "https://style-playground.firebaseio.com",
+    "projectId": "style-playground",
+    "storageBucket": "style-playground.appspot.com",
+    "messagingSenderId": "213787329993",
+    "appId": "1:213787329993:web:4b6220c697de9ad4c75418"
+}
+
+firebase = pyrebase.initialize_app(config)
+storage = firebase.storage()
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # default access page
 @app.route("/")
@@ -32,8 +54,74 @@ def colorharm():
     return render_template('colorharm.html')
 
 
-@app.route("/styletransfer")
+''' @app.route("/styletransfer")
 def styletransfer():
+
+    return render_template('styletransfer.html') '''
+img_url_global = ''
+@app.route("/styletransfer", methods=['GET', 'POST'])
+def styletransfer():
+    global img_url_global
+    if request.method == 'POST':
+        formid = request.args.get('formid', 1, type=int)
+
+        if formid == 2:
+            filename = request.form['image']
+            # open and process image
+            #target = os.path.join(APP_ROOT, 'static/images')
+            #destination = "/".join([target, filename])
+
+            #img = Image.open(destination)
+            #img = img.rotate(-1*int(request.form['angle']))
+
+            # save and return image
+            #destination = "/".join([target, 'temp.png'])
+            # if os.path.isfile(destination):
+            # os.remove(destination)
+            # img.save(destination)
+            r = requests.post(
+                "https://api.deepai.org/api/fast-style-transfer",
+                data={
+                    'content': img_url_global,
+                    'style': 'https://images.unsplash.com/photo-1569172122301-bc5008bc09c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80',
+                },
+                headers={'api-key': 'quickstart-QUdJIGlzIGNvbWluZy4uLi4K'}
+            )
+            print(r.json()['output_url'])
+            return render_template('styletransfer.html', image_name=filename, result_image_name=r.json()['output_url'])
+            # return send_image('temp.png')
+        else:
+            target = os.path.join(APP_ROOT, 'static/images/')
+
+            # create image directory if not found
+            if not os.path.isdir(target):
+                os.mkdir(target)
+
+            # retrieve file from html file-picker
+            upload = request.files.getlist("file")[0]
+            print("File name: {}".format(upload.filename))
+            filename = upload.filename
+
+            # file support verification
+            ext = os.path.splitext(filename)[1]
+            if (ext == ".jpg") or (ext == ".png") or (ext == ".bmp"):
+                print("File accepted")
+            else:
+                return render_template("error.html", message="The selected file is not supported"), 400
+
+            # save file
+            destination = "/".join([target, filename])
+            print("File saved to to:", destination)
+            upload.save(destination)
+            #path_on_cloud = "user_upload/foo.jpg"
+            path_local = destination
+            imgurl = storage.child(f'user_upload/{filename}').put(path_local)
+            img_url = storage.child(
+                f'user_upload/{filename}').get_url(imgurl['downloadTokens'])
+            img_url_global = img_url
+            print(f'imagge global is {img_url_global}')
+            print(f'imagge currently got  is {img_url}')
+            return render_template('styletransfer.html', image_name=img_url)
     return render_template('styletransfer.html')
 
 
@@ -46,6 +134,7 @@ def gallery():
 # upload selected image and forward to processing page
 @app.route("/upload", methods=["POST"])
 def upload():
+
     target = os.path.join(APP_ROOT, 'static/images/')
 
     # create image directory if not found

@@ -1,4 +1,5 @@
 Pillow
 Flask==1.0
 gunicorn
+torchvision-0.3.0
 requests[security]

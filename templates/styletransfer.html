@@ -1,26 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
- 
-{% extends "base.html" %}
-{% set active_page = "styletransfer" %}
-{% block title %} Computational Art Studio|Style Transfer {% endblock %}
+  {% extends "base.html" %} {% set active_page = "styletransfer" %} {% block
+  title %} Computational Art Studio|Color Harmolization {% endblock %} {% block
+  content %}
 
+  <div class="container">
+    <div class="jumbotron">
+      <h1>Style Transfer: Upload your image</h1>
+      <p class="lead"></p>
+      <form
+        id="upload-form"
+        action="{{ url_for('styletransfer', formid=1) }}"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <input
+          id="file-picker"
+          type="file"
+          name="file"
+          accept="image/*"
+          class="hidden"
+          onchange="this.form.submit()"
+        />
+        <label for="file-picker" class="btn btn-lg btn-success"
+          >Select file</label
+        >
+      </form>
 
-{% block content %}
+      <div id="image-container">
+        {% if image_name %}
+        <img src=" {{image_name}} " style="max-width: 560px" />
+        {% endif %}
+      </div>
 
+      <div class="col-lg-6">
+        <h4>Rotate</h4>
+        <form
+          id="form-rotate"
+          action="{{ url_for('styletransfer', formid=2) }}"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <input
+            type="number"
+            name="angle"
+            min="-359"
+            max="359"
+            placeholder="degrees"
+            required
+          />
+          <button id="btnRotate" class="btn btn-lg btn-success" type="submit">
+            Go
+          </button>
+          <input
+            type="text"
+            class="hidden"
+            name="image"
+            value="{{ image_name }}"
+          />
+        </form>
+      </div>
 
- 
-    <div class="container">
- 
-        <div class="jumbotron">
-            <h1>Style Transfer </h1>
-            <h2>Upload an image</h2>
-
-            <h2>Upload a style image</h2>
-        </div>
-
- 
+      <div id="image-container">
+        {% if result_image_name %}
+        <img src="{{result_image_name}}" style="max-width: 560px" />
+        {% endif %}
+      </div>
     </div>
+  </div>
 
-
-    {% endblock %}
+  {% endblock %}
+</html>
